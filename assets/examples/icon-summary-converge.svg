@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+<!-- elements: 5 | 摘要·收束核 | 三开放笔画 + 封闭容器核 + 核内短杠 -->
+<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2 5 L6 8"/>
+  <path d="M2 12 H6"/>
+  <path d="M2 19 L6 16"/>
+  <rect x="10" y="6" width="12" height="12" rx="3"/>
+  <path d="M14 12 H18"/>
+</g>
+</svg>

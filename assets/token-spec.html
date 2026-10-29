@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>断点线性图标风格 · 设计 Token 规范</title>
+<style>
+  :root{
+    --ink:#171718; --stroke:#96969B; --bg:#F4F5FC; --card:#FFFFFF;
+    --hairline:rgba(23,23,24,.08); --accent:#534AB7; --warn:#B4530A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Noto Sans SC",-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;padding:48px 24px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .sub{color:var(--stroke);margin:6px 0 40px;font-size:14px}
+  h2{font-size:19px;font-weight:700;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--hairline)}
+  h3{font-size:15px;font-weight:600;margin:20px 0 8px}
+  p{font-size:14px;margin:8px 0;max-width:72ch}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(23,23,24,.05)}
+  th{background:#FAFAFE;text-align:left;font-weight:600;padding:10px 14px;border-bottom:1px solid var(--hairline);white-space:nowrap}
+  td{padding:9px 14px;border-bottom:1px solid var(--hairline);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code, p code{background:#ECECF4;border-radius:5px;padding:1px 6px;font-family:"SF Mono",Menlo,monospace;font-size:12px}
+  .chip{display:inline-block;border-radius:6px;padding:0 8px;font-family:Menlo,monospace;font-size:11px;border:1px solid var(--hairline)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .panel{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(23,23,24,.05)}
+  .panel h3{margin-top:0}
+  .caption{font-size:12px;color:var(--stroke);margin-top:8px}
+  .ok{color:#1C7C3C}.bad{color:var(--warn)}
+  svg{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>断点线性图标风格 · 设计 Token 规范</h1>
+<div class="sub">从侧边栏截图逐像素反测（24px 基准）· 含「摘要」功能行业调研 · 可直接作为新图标的设计与验收标准</div>
+
+<h2>一、哪些应用有「摘要」功能（入口形态调研）</h2>
+<table>
+<tr><th>应用</th><th>摘要能力</th><th>入口与图标形态</th></tr>
+<tr><td>Zoom AI Companion</td><td>会议摘要 + 行动项</td><td>工具栏 <b>Sparkle（星芒）</b>图标 → 非模态浮窗；会中右上角有持续闪烁的钻石标识</td></tr>
+<tr><td>Slack AI</td><td>频道 Recap / 线程摘要</td><td><b>Sparkles 图标按钮</b> → 侧边面板；「Catch up」每日摘要流</td></tr>
+<tr><td>Gmail + Gemini</td><td>「Summarize this email」</td><td>邮件顶部<b>文字按钮</b> → 右侧 Gemini 面板</td></tr>
+<tr><td>Notion AI</td><td>页面摘要（行首空格 → Summarize）</td><td>菜单项为主，<b>不依赖专用图标</b></td></tr>
+<tr><td>YouTube</td><td>评论区按主题摘要</td><td>Sparkle <b>Tab 标签</b></td></tr>
+<tr><td>Amazon / Booking / Etsy</td><td>评价区自动摘要</td><td>无入口图标，内容前挂 AI 标识/sparkle 徽标</td></tr>
+<tr><td>Readwise Reader</td><td>文章右侧栏常驻摘要（Ghostreader）</td><td>侧栏摘要区 + 幽灵小图标切换模型</td></tr>
+<tr><td>Google Docs / Meet</td><td>「Help me write」/ 会议纪要</td><td>铅笔图标、侧边 chip</td></tr>
+<tr><td>飞书妙记 / Otter / Granola</td><td>会议纪要摘要、章节速览</td><td>列表/大纲式入口，多与「纪要」图标复用</td></tr>
+</table>
+<p><b>结论：</b>行业内「摘要」入口没有统一图标——动作型入口多用 <b>Sparkle</b>（表示"AI 来做"），内容型摘要挂在侧栏/侧板，靠<b>文案 + 位置</b>而不是图形承载语义。这与上一轮报告的判断一致：图标可以讲"压缩/收束"，但清单与记录必须交给展开后的面板。你的场景（点击后展开推进清单 + 子智能体记录）里，icon 适合讲"收束成核"，面板里再用列表与节点连线讲其余两层语义。</p>
+
+<h2>二、像素反测：这套图标的设计 Token（24px 基准）</h2>
+<div class="panel" style="border-left:3px solid #534AB7;margin-bottom:16px">
+<p style="margin:0"><b>复测修正（第二版）：</b>用亚像素墨量法逐图标标定后确认——<b>全组线宽严格统一为 2</b>（物理实测 2.51px，截图按 125% 渲染 → ÷1.25 = 2.01）；容器中心线 20×20（外径 22）、圆角 5、globe 圆 r10，全部吻合 24 栅格。<b>内部短杠与主线等粗</b>——初版"短杠配重 2.5"是抗锯齿造成的误读，已废除。plus 图标（物理 2.81）是原图自身唯一偏差项，不继承。</p>
+</div>
+<table>
+<tr><th>Token</th><th>值</th><th>测量依据</th></tr>
+<tr><td><code>grid.size</code></td><td><b>24 × 24</b>（截图为 125% 渲染，物理 ÷1.25）</td><td>容器外径 27.89 物理 ÷ 1.25 = 22.3 → path 20 + stroke 2</td></tr>
+<tr><td><code>stroke.width</code></td><td><b>2</b>（全组统一）</td><td>亚像素墨量实测 2.51px 物理 ÷ 1.25 = 2.01；线宽不一即不合规</td></tr>
+<tr><td><code>stroke.cap / join</code></td><td><b>round / round</b></td><td>所有端点与拐角呈半圆收头，无方头</td></tr>
+<tr><td><code>container.body</code></td><td><b>path 20×20 @ (2,2)</b>，外径 22</td><td>stroke 中心线距实测 25.39 物理 ÷ 1.25 = 20.3</td></tr>
+<tr><td><code>container.radius</code></td><td><b>5</b>（path 圆角，≈25% 边长）</td><td>角部亚像素拟合 R≈6.2 物理 ÷ 1.25 ≈ 5.0</td></tr>
+<tr><td><code>bracket.radius / arm</code></td><td><b>4 / 4</b></td><td>scan 的四角：纯圆角弧 + 极短臂，不到 5px 就断</td></tr>
+<tr><td><code>gap.break</code>（轮廓断点）</td><td><b>2 – 3</b>（≈1–1.5×线宽）</td><td>文件折角与纸边不相连、眼睛与面框不接触</td></tr>
+<tr><td><code>gap.element</code>（元素间距）</td><td><b>4 – 8</b></td><td>scan 十字杠与四角间距实测 8px；层叠 chevron 间距 4px</td></tr>
+<tr><td><code>dash.inner.length</code></td><td><b>3 – 6</b></td><td>file 正文 6.6/2.8、robot 眼睛 2.2、terminal 光标杠（设计值）</td></tr>
+<tr><td><code>dash.inner.weight</code></td><td><b>2，与主线等粗</b></td><td>短杠单条精测 2.49–2.51 物理，与外框一致；"更粗"是测量污染</td></tr>
+<tr><td><code>overshoot.optical</code></td><td><b>±1 – 2</b></td><td>robot 天线/耳朵、globe 圆形允许出格做光学补正</td></tr>
+<tr><td><code>color.stroke.default</code></td><td><span class="chip" style="background:#96969B;color:#fff">#96969B</span></td><td>默认态灰，实测 RGB(150,150,155)</td></tr>
+<tr><td><code>color.stroke.active</code></td><td><span class="chip" style="background:#171718;color:#fff">#171718</span></td><td>激活态近黑，实测 RGB(23,23,24)</td></tr>
+<tr><td><code>color.bg / card</code></td><td><span class="chip" style="background:#F4F5FC">#F4F5FC</span> <span class="chip" style="background:#fff">#FFFFFF</span></td><td>淡紫灰底 + 白色浮起卡片</td></tr>
+<tr><td><code>active.card.radius</code></td><td><b>12</b>（@44–48px 卡片）</td><td>激活项白色 squircle 卡片，约边长 25% 圆角</td></tr>
+<tr><td><code>active.card.border</code></td><td><code>1px rgba(23,23,24,.06)</code> + 微投影</td><td>卡片有极淡描边和 1–2px 落影</td></tr>
+</table>
+
+<h2>三、风格签名：断点（Breakpoint）的五条规则</h2>
+<p>这套图标最独特的识别点不是圆角，而是<b>"该连的地方故意不连"</b>。所有轮廓在以下五种位置断开：</p>
+<div class="grid2">
+  <div class="panel">
+    <h3>① 内细节靠近处断</h3>
+    <svg viewBox="0 0 300 90" width="100%">
+      <g stroke="#96969B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 25 h20 a6 6 0 0 1 6 6 v28 a6 6 0 0 1 -6 6 h-20 a6 6 0 0 1 -6 -6 v-28 a6 6 0 0 1 6 -6 Z" transform="translate(20,0)"/>
+        <rect x="80" y="25" width="32" height="40" rx="6" stroke-dasharray="30 4 30 4 12 999" transform="translate(20,0)"/>
+        <line x1="90" y1="45" x2="102" y2="45" stroke-width="2"/>
+      </g>
+    </svg>
+    <p class="caption">文件折角、内容杠从不与外框相接（左：连续错误；右：断开正确示意）——凡内部元素距轮廓 ≤6px，轮廓在此处让位断开 2–3px。</p>
+  </div>
+  <div class="panel">
+    <h3>② 拐角即断点</h3>
+    <svg viewBox="0 0 300 90" width="100%">
+      <g stroke="#96969B" stroke-width="2" fill="none" stroke-linecap="round">
+        <path d="M40 55 v-15 a12 12 0 0 1 12 -12 h15"/>
+        <path d="M120 28 h15 a12 12 0 0 1 12 12 v15"/>
+        <path d="M147 63 v15 a12 12 0 0 1 -12 12 h-15" transform="translate(0,-28)"/>
+        <path d="M67 63 v15 a12 12 0 0 1 -12 12 h-15" transform="translate(0,-28)"/>
+        <line x1="85" y1="50" x2="102" y2="50" stroke-width="2"/>
+      </g>
+    </svg>
+    <p class="caption">scan 图标：完整方框被拆成四个"短臂圆弧"，臂长仅 4px。直角不硬画，用圆弧 + 断口表达"取景/扫描"的开放感。</p>
+  </div>
+  <div class="panel">
+    <h3>③ 封闭只留给容器主形</h3>
+    <svg viewBox="0 0 300 90" width="100%">
+      <g stroke="#96969B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="35" y="25" width="40" height="40" rx="6"/>
+        <path d="M47 40 l7 7 -7 7" transform="translate(8,0)"/>
+        <line x1="70" y1="47" x2="62" y2="47" transform="translate(0,0)" opacity="0"/>
+        <path d="M150 30 l10 10 -10 10" />
+        <path d="M150 50 l10 10 -10 10" opacity=".999"/>
+      </g>
+    </svg>
+    <p class="caption">terminal / plus：外框是封闭圆角矩形；而 stack 的层叠用<b>开放式 chevron</b>（不闭合、不回笔），封闭形 = "框住的东西"，开放形 = "动态/过程"。</p>
+  </div>
+  <div class="panel">
+    <h3>④ 内部细节一律短杠</h3>
+    <svg viewBox="0 0 300 90" width="100%">
+      <g stroke="#96969B" fill="none" stroke-linecap="round">
+        <path d="M40 30 v-6" stroke-width="2"/><path d="M35 30 h-3 M35 30 h0 M32 34 h-2 M68 34 h2 M65 30 h3 M65 30 v-6" stroke-width="2"/>
+        <rect x="30" y="30" width="40" height="36" rx="8" stroke-width="2"/>
+        <line x1="46" y1="44" x2="50" y2="44" stroke-width="2"/><line x1="56" y1="44" x2="60" y2="44" stroke-width="2"/>
+        <rect x="120" y="28" width="40" height="40" rx="6" stroke-width="2"/>
+        <path d="M132 42 l6 7" stroke-width="2"/><line x1="144" y1="50" x2="150" y2="50" stroke-width="2"/>
+        <line x1="132" y1="56" x2="140" y2="56" stroke-width="2"/>
+      </g>
+    </svg>
+    <p class="caption">robot 眼睛、terminal 命令杠、file 正文行：内部元素永远是 3–6px 的独立短杠，绝不拉通、绝不顶边；<b>厚度与主线同为 2</b>（复测确认，勿加粗）。</p>
+  </div>
+</div>
+<p><b>⑤ 斜线与圆做光学补正。</b>45° 斜笔画在像素栅格上天然显细，实测中斜向读数普遍为 3px（水平 2px）；圆形（globe）允许 ±1–2px 出格。落到 SVG 上即：斜线 stroke 可 +0.25~0.5，或整体对 0.5px 栅格取半。</p>
+
+<h2>四、用这套 Token 重绘「摘要」icon</h2>
+<div class="grid2">
+  <div class="panel">
+    <h3>收束核 · 断点风格版</h3>
+    <svg viewBox="-6 -6 36 36" width="180" style="margin:0 auto;background:#fff;border-radius:16px">
+      <g stroke="#E4E4EE" stroke-width=".25">
+        <line x1="0" y1="0" x2="24" y2="0"/><line x1="0" y1="4" x2="24" y2="4"/><line x1="0" y1="8" x2="24" y2="8"/><line x1="0" y1="12" x2="24" y2="12"/><line x1="0" y1="16" x2="24" y2="16"/><line x1="0" y1="20" x2="24" y2="20"/><line x1="0" y1="24" x2="24" y2="24"/>
+        <line x1="0" y1="0" x2="0" y2="24"/><line x1="4" y1="0" x2="4" y2="24"/><line x1="8" y1="0" x2="8" y2="24"/><line x1="12" y1="0" x2="12" y2="24"/><line x1="16" y1="0" x2="16" y2="24"/><line x1="20" y1="0" x2="20" y2="24"/><line x1="24" y1="0" x2="24" y2="24"/>
+      </g>
+      <g stroke="#171718" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 5 L6 8"/>
+        <path d="M2 12 H6"/>
+        <path d="M2 19 L6 16"/>
+      </g>
+      <rect x="10" y="6" width="12" height="12" rx="3" fill="none" stroke="#171718" stroke-width="2"/>
+      <line x1="14" y1="12" x2="18" y2="12" stroke="#171718" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <p class="caption">三条会话输入线（开放笔画，端点同落 x=6 轴、起点同落 x=2 轴）→ 圆角容器核 12×12（封闭 = 结果）→ 核内一条 4px 短杠（蒸馏出的要点）。笔画统一线宽 2；全部间隙 ∈ {2,3,4,6}，线-核、杠-壁四处间隙全部 = 2。</p>
+  </div>
+  <div class="panel">
+    <h3>同一图标的降级与状态</h3>
+    <svg viewBox="0 0 300 100" width="100%">
+      <g transform="translate(20,20)">
+        <g stroke="#96969B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 5 L6 8"/><path d="M2 12 H6"/><path d="M2 19 L6 16"/>
+        </g>
+        <rect x="10" y="6" width="12" height="12" rx="3" fill="none" stroke="#96969B" stroke-width="2"/>
+        <line x1="14" y1="12" x2="18" y2="12" stroke="#96969B" stroke-width="2" stroke-linecap="round"/>
+        <text x="12" y="45" font-size="10" fill="#96969B" text-anchor="middle">默认 #96969B</text>
+      </g>
+      <g transform="translate(100,20)">
+        <g stroke="#171718" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 5 L6 8"/><path d="M2 12 H6"/><path d="M2 19 L6 16"/>
+        </g>
+        <rect x="10" y="6" width="12" height="12" rx="3" fill="#171718"/>
+        <line x1="14" y1="12" x2="18" y2="12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+        <text x="12" y="45" font-size="10" fill="#171718" text-anchor="middle">激活：核实心反白</text>
+      </g>
+      <g transform="translate(185,22) scale(.75)">
+        <g stroke="#96969B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7 L10 10.5"/><path d="M3.5 12 H10"/>
+        </g>
+        <rect x="12" y="8" width="8" height="8" rx="2.5" fill="none" stroke="#96969B" stroke-width="2"/>
+        <text x="12" y="38" font-size="10" fill="#96969B" text-anchor="middle" transform="translate(4,10)">16px：两线并一线</text>
+      </g>
+    </svg>
+    <p class="caption">激活态走"核实心 + 短杠反白"；16px 降级时三条输入线减为两条，线宽保持 2 不变，只减元素不减线宽。</p>
+  </div>
+</div>
+
+<h2>五、可直接抄的参数（SVG / CSS 变量）</h2>
+<div class="panel">
+<pre style="font-family:'SF Mono',Menlo,monospace;font-size:12.5px;line-height:1.9;overflow-x:auto">
+:root {
+  --icon-grid: 24;               /* 画布 24×24，内容安全区 22×22 */
+  --icon-stroke: 2;              /* @16px → 1.75，@32px → 2.5 */
+  --icon-cap: round;
+  --icon-join: round;
+  --icon-container-rx: 5;        /* 容器 path 圆角 ≈25% 边长（角部拟合 5.0） */
+  --icon-bracket-r: 4;           /* 取景角弧半径，臂长 4 */
+  --icon-gap-scale: 2 3 4 6;     /* 间隙模数（=1×/1.5×/2×/3× 线宽），禁用其他值 */
+  --icon-gap-break: 2;           /* 轮廓断点：1–1.5× 线宽 */
+  --icon-gap-element: 2;         /* 相邻构件最小净间隙 ≥2；主次分层用 4–6 */
+  --icon-dash-min: 4;            /* 内部短杠最短 4，最长 6 */
+  --icon-dash-weight: 2;         /* 内部短杠与主线等粗，勿加粗（复测修正） */
+  --icon-overshoot: 1.5;         /* 圆形/出格元素光学补正 ≤2 */
+  --icon-color: #96969B;         /* 默认 */
+  --icon-color-active: #171718;  /* 激活 */
+  --icon-card-bg: #FFFFFF;       /* 激活卡片 */
+  --icon-card-radius: 12px;      /* @44–48 卡片，≈25% */
+  --icon-card-border: 1px solid rgba(23, 23, 24, .06);
+  --icon-card-shadow: 0 1px 3px rgba(23, 23, 24, .08);
+}
+</pre>
+<p class="caption">验收口诀：<b>线 2 圆头；框圆角五分一；杠短四到六；见细就断开，断口一倍半；间隙只用二三四六；斜线不加磅，圆形可出格。</b></p>
+</div>
+
+<h2>六、语义 → 图形映射表（先选"形类"，再画）</h2>
+<table>
+<tr><th>形类</th><th>承载语义</th><th>封闭？</th><th>断点要求</th><th>例</th></tr>
+<tr><td>圆角容器（矩形 rx5 / 圆 r8）</td><td>被装起来的东西：文件、终端、结果、状态</td><td><span class="ok">封闭</span></td><td>内部元素离壁 ≥3，轮廓在此断开</td><td>文件、终端、历史</td></tr>
+<tr><td>开放笔画（chevron / 汇聚线 / 弧）</td><td>过程与动作：展开、收束、层叠、取景</td><td><span class="bad">开放</span></td><td>笔画之间不接触，端点留 2–3</td><td>折叠、摘要输入线</td></tr>
+<tr><td>取景角弧（r4 + 4px 短臂）</td><td>边界、识别、扫描、框定范围</td><td><span class="bad">开放</span></td><td>四角互不相接，中间留 8 以上</td><td>scan</td></tr>
+<tr><td>内部短杠（3–6px，与主线等粗）</td><td>内容、要点、细节、光标</td><td>—</td><td>不顶边、不与他物相交，四周间隙 ≥2</td><td>正文行、眼睛、命令杠</td></tr>
+<tr><td>节点单元（4–6px 小圆/圆角方）</td><td>实例、子智能体、参与者</td><td><span class="ok">封闭</span></td><td>同层节点同尺寸同圆角；不连线，阵列表达关系</td><td>子智能体节点阵列</td></tr>
+</table>
+<p><b>选形原则：</b>一个图标 = 1 个主形（容器或开放笔画）+ 0~2 个短杠/节点。三层以上的语义不进 24px 图标，下沉到徽标层与面板层（见上一轮「语义分层卸载」）。</p>
+
+<h2>七、绘制 SOP（8 步，按顺序做）</h2>
+<table>
+<tr><th>#</th><th>步骤</th><th>产出 / 判定</th></tr>
+<tr><td>1</td><td>写下语义，拆到<b>一层主语义</b>，其余卸载到徽标层/面板层</td><td>一句话："这个图标只讲 X"</td></tr>
+<tr><td>2</td><td>按第六节选形类（容器 / 开放 / 取景角 / 节点）</td><td>确定主形是否封闭</td></tr>
+<tr><td>3</td><td>把主形落进 24 栅格：所有关键坐标落在 0.5 网格，构件尺寸取整模数（2/4/6/8/12/20）</td><td>无 0.5 以外的奇数坐标</td></tr>
+<tr><td>4</td><td>查「腔体约束表」再补内部细节：容器内放短杠需净腔 ≥ 短杠长 + 6；短杠一律 3–6px、与主线等粗</td><td>dash 长度合法、不顶壁</td></tr>
+<tr><td>5</td><td><b>执行断点 + 防粘连</b>：凡两条独立笔画接近处按 2–3px 断开；语义上必须相接的合并为同一条 path 用 round join</td><td>无相交、无"焊死"、连通域数 = 声明元素数</td></tr>
+<tr><td>6</td><td>间隙全部对齐模数 {2,3,4,6}，同一图标内优先同档；<b>斜线不加粗</b>，端点落在网格交叉点；圆形允许 ±1–2 出格</td><td>间隙谱干净、1x 下视觉等重</td></tr>
+<tr><td>7</td><td>做尺寸降级（见第十节），检查 16px 是否糊成一团</td><td>16px 仍能辨认主形</td></tr>
+<tr><td>8</td><td>跑第八节验收清单，全部通过再入库</td><td>清单全绿</td></tr>
+</table>
+
+<h2>八、验收清单（16 条，缺一不打回）</h2>
+<div class="panel">
+<ul style="font-size:13.5px;margin-left:18px;line-height:2">
+<li>线宽 = 2（@24），全部 round cap + round join</li>
+<li>封闭容器圆角 = 5（≈25% 边长），小容器按同比例</li>
+<li>任意两个独立元素<b>不接触</b>，净间隙 ≥2；连通域数与声明元素数一致</li>
+<li>全部间隙落在模数 {2,3,4,6}，同一图标内尽量同档</li>
+<li>内部细节是独立短杠，长度 3–6，不顶边、不拉通</li>
+<li>内部短杠与主线<b>等粗 2</b>，任何方向（含斜线）都不加粗</li>
+<li>成组构件<b>同尺寸、同圆角、同间距</b>（同构重复）</li>
+<li>横竖笔画共轴、成组端点落在同一轴上，斜线端点落在网格交叉点</li>
+<li>主形落在 20×20 安全区内，描边外缘不出 keyline（1–23）</li>
+<li>几何中心偏移 ≤0.6，墨量在 9–32% 带内（自动验收会给读数）</li>
+<li>与同组图标<b>视觉重量一致</b>（墨量相当，不喧宾夺主）</li>
+<li>16px / 20px 缩放后主形仍可辨认（必要时减元素，不缩线宽）</li>
+<li>颜色只用 token：默认 #96969B、激活 #171718，不使用填充色</li>
+<li>SVG 用 <code>stroke</code> 不用 <code>fill</code>；无内联样式、无 transform 缩放依赖</li>
+<li>语义经符号化阶梯定位：画关系不画东西，构件来自构件库</li>
+<li>与同组 8 个图标并排不撞语义（做一次邻位混淆检查）</li>
+</ul>
+</div>
+
+<h2>九、常见反例</h2>
+<table>
+<tr><th>反例</th><th>问题</th><th>正解</th></tr>
+<tr><td>内部短杠顶到容器壁</td><td>糊成一坨，断点规则失效</td><td>短杠距壁 ≥3，必要时轮廓让步断开</td></tr>
+<tr><td>直角硬拐、方头端点</td><td>破坏圆头签名，显廉价</td><td>round cap/join，直角改圆弧</td></tr>
+<tr><td>为塞语义堆三层结构</td><td>24px 下不可读</td><td>主形 + 短杠，其余卸载到面板</td></tr>
+<tr><td>16px 直接等比缩小</td><td>线宽变 1.33，糊</td><td>线宽保持 1.75–2，减元素不减线宽</td></tr>
+<tr><td>用填充色块表达强调</td><td>破坏纯线性语言</td><td>用线宽配重或激活色表达层级</td></tr>
+<tr><td>坐标取 3.7、9.3 之类</td><td>1x 下抗锯齿发虚</td><td>取整数或 .5，优先 4 的倍数</td></tr>
+<tr><td>间隙取 3.5、5 这类非模数值</td><td>间隙不统一，失去秩序感</td><td>全部对齐 {2,3,4,6}，同图标内优先同档</td></tr>
+<tr><td>给斜线加粗"补视觉"</td><td>破坏线宽恒定，凑近看粗细不一</td><td>线宽恒 2；光学补正只动位置（端点落格、圆形出格）</td></tr>
+<tr><td>两个独立 path 中途擦碰</td><td>粘连，缩到 16px 焊成一坨</td><td>要么断开 ≥2，要么合并为同一条 path 用 round join</td></tr>
+<tr><td>每次画新图标发明新形状</td><td>没有符号化，家族感崩塌</td><td>只用构件库五种构件拼装：容器/短杠/节点/V 形/chevron</td></tr>
+</table>
+
+<h2>十、尺寸降级矩阵</h2>
+<table>
+<tr><th>尺寸</th><th>线宽</th><th>容器圆角</th><th>断点</th><th>元素策略</th></tr>
+<tr><td>32 px</td><td>2.5</td><td>7</td><td>3</td><td>可加第三层细节</td></tr>
+<tr><td>24 px（基准）</td><td>2</td><td>5</td><td>2.5</td><td>主形 + ≤2 短杠</td></tr>
+<tr><td>20 px</td><td>2</td><td>4.5</td><td>2.5</td><td>保留主形，短杠取 4</td></tr>
+<tr><td>16 px</td><td>2（不减）</td><td>4</td><td>2</td><td>减一个元素（如三线并两线）</td></tr>
+<tr><td>12 px</td><td>1.75</td><td>3.5</td><td>2</td><td>仅保留主形轮廓，去掉全部短杠</td></tr>
+</table>
+
+<h2>十一、图标集示例（同一套 token 扩展出来的 8 枚）</h2>
+<div class="panel" style="background:#F4F5FC">
+  <img src="example-set.svg" style="width:100%;display:block" alt="示例图标集"/>
+  <p class="caption">摘要（收束核）/ 清单 / 子智能体节点阵列 / 历史 / 过滤 / 折叠 / 文件 / 终端 —— 全部 stroke 2、round cap、间隙只用 {2,3,4,6}、无粘连、同构重复；单文件在 <code>examples/</code> 目录，均通过自动验收。</p>
+</div>
+
+<h2>十二、构成五法 + 腔体约束 + 符号化阶梯（建筑感从哪来）</h2>
+<div class="panel">
+<h3 style="margin-top:4px">构成五法</h3>
+<ol style="font-size:13.5px;line-height:1.9;margin-left:18px">
+<li><b>模数制</b>：关键坐标落在 0.5 网格，构件尺寸取整模数（2/4/6/8/12/20）；坐标出现 3.7、9.3 一律打回。</li>
+<li><b>同轴对齐</b>：横竖笔画共用同一 x/y 轴，成组端点落在同一条轴上（收束核三线同落 x=6、起点同落 x=2）；斜线两端各落在一个网格交叉点上。</li>
+<li><b>同构重复</b>：同层构件同尺寸、同圆角、同间距——节点阵列是两个 6×6 rx2，不是一大一小两个异形。重复产生韵律，韵律产生秩序感。</li>
+<li><b>结构分层，不靠线宽分层</b>：主形（容器，20 级）→ 次级构件（短杠/V 形/勾，4–8 级）→ 节点（≤6 级）。层级靠尺寸与闭合状态表达，线宽永远 2。</li>
+<li><b>负形即版式</b>：留白也是矩形，腔体至少一边取整模数；复杂性来自构件层数与重复，不来自塞满（墨量带 9–32%）。</li>
+</ol>
+<h3>腔体约束表（实测得出，画之前先查）</h3>
+<table>
+<tr><th>容器 path 尺寸</th><th>内部净腔</th><th>可容纳的内部短杠（四周间隙 2）</th></tr>
+<tr><td>20×20（rx5）</td><td>16×16</td><td>中心线长 ≤6（终端 chevron 6 + 短杠 3.5）</td></tr>
+<tr><td>12×12（rx3）</td><td>8×8</td><td>中心线长 ≤4（摘要核内杠 4）</td></tr>
+<tr><td>9×9（rx2.5）</td><td>5×5</td><td><b>放不下</b>（上限 1）——放大容器或去掉内部元素</td></tr>
+<tr><td>6×6（rx2）</td><td>2×2</td><td>只能当实心节点用</td></tr>
+</table>
+<p class="caption">连接线规则：两个元素之间放一条独立连接线，需净空 ≥ 线长 + 6（两端各留 cap 1 + 间隙 2）。24px 放不下"节点-连线-节点"三层关系图——所以子智能体画成节点阵列，关系细节下沉到展开面板。</p>
+<h3>符号化阶梯</h3>
+<p style="font-size:13.5px;line-height:1.9"><b>L0 具象（禁止）</b>：画物体本身（有脸有耳的机器人）。<b>L1 提炼（仅必要时）</b>：保留一个几何化识别特征（文件折角、终端光标）。<b>L2 关系符号（默认）</b>：不画东西画关系——汇聚、收束、嵌套、阵列、层级。判据三问：画的是"东西"还是"关系"？去掉某笔还成立吗（成立即装饰，删）？构件是不是构件库里的现成货？<b>构件库只许五种</b>：圆角容器、短杠、节点方块/圆、V 形收口、chevron。新图标 = 旧构件的新组合，这就是"符号化"的机制。</p>
+<h3>自动验收（check-style.py）</h3>
+<pre style="font-family:'SF Mono',Menlo,monospace;font-size:12.5px;line-height:1.8;overflow-x:auto">python3 check-style.py "examples/*.svg" --scale 12</pre>
+<p style="font-size:13px;line-height:1.9">像素实测，不靠肉眼：<b>粘连/断裂</b>（连通域计数 vs 声明元素数，FAIL）、<b>线宽</b>（8 方向行程长度取最小再取中位，2±0.2，FAIL）、<b>间隙</b>（精确欧氏距离变换，≥2 且落模数）、<b>墨量</b>（9–32%，WARN）、<b>居中</b>（偏移 ≤0.6，WARN）。测量三坑：内切半径在 round join 处虚高（改用行程法）；chamfer(3,4) 斜线方向误差 ~8%（改用精确 EDT）；间隙读数含 1px 像素中心系统偏置。</p>
+</div>
+
+<h2>十三、命名与交付规范</h2>
+<table>
+<tr><th>项</th><th>规则</th></tr>
+<tr><td>文件命名</td><td><code>icon-{语义}-{形类}.svg</code>，例 <code>icon-summary-converge.svg</code>；小写 + 连字符</td></tr>
+<tr><td>SVG 结构</td><td><code>viewBox="0 0 24 24"</code>，单一 <code>&lt;g stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;</code>，颜色用 <code>currentColor</code> 便于主题化；首行注释声明元素数：<code>&lt;!-- elements: 5 | 摘要·收束核 | 一句话构成 --&gt;</code>（自动验收靠它数连通域）</td></tr>
+<tr><td>不出</td><td>不内联 style、不用 fill 描边、不含 id 依赖、不加 padding（留白靠栅格）</td></tr>
+<tr><td>导出尺寸</td><td>SVG 为主；位图出 @1x/@2x/@3x PNG，命名 <code>-24</code>/<code>-48</code> 后缀</td></tr>
+<tr><td>入库</td><td>每枚图标附一句话语义 + 邻位冲突说明；新增前与已有图标做一次并排混淆检查</td></tr>
+</table>
+
+</div>
+</body>
+</html>

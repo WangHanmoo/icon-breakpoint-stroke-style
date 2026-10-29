@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 292" width="598" height="292">
+  <rect width="598" height="292" fill="#F4F5FC"/>
+  <g font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="11" fill="#96969B" text-anchor="middle">
+
+  <!-- 卡片 132×122；图标 24 栅格 ×4 = 96px，居中放置 (卡片内偏移 18,10)；标签基线 y=116 -->
+
+  <!-- 1 摘要 · 收束核 -->
+  <g transform="translate(14,14)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 5 L6 8"/><path d="M2 12 H6"/><path d="M2 19 L6 16"/>
+        <rect x="10" y="6" width="12" height="12" rx="3"/>
+        <path d="M14 12 H18"/>
+      </g>
+    </g>
+    <text x="66" y="116">摘要 · 收束核</text>
+  </g>
+
+  <!-- 2 清单 · 短杠+勾 -->
+  <g transform="translate(160,14)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 8 H11"/><path d="M3 16 H11"/>
+        <path d="M13.5 12.5 L16 15 L20.5 9"/>
+      </g>
+    </g>
+    <text x="66" y="116">清单 · 短杠 + 勾</text>
+  </g>
+
+  <!-- 3 子智能体 · 节点阵列 -->
+  <g transform="translate(306,14)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="8" width="8" height="8" rx="2.5"/>
+        <rect x="15.5" y="3" width="6" height="6" rx="2"/>
+        <rect x="15.5" y="15" width="6" height="6" rx="2"/>
+      </g>
+    </g>
+    <text x="66" y="116">子智能体 · 节点阵列</text>
+  </g>
+
+  <!-- 4 历史 · 圆 + 指针 -->
+  <g transform="translate(452,14)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 7 V12 H17"/>
+      </g>
+    </g>
+    <text x="66" y="116">历史 · 圆 + 指针</text>
+  </g>
+
+  <!-- 5 过滤 · 漏斗 -->
+  <g transform="translate(14,150)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4 H20"/><path d="M6 8 L12 13 L18 8"/><path d="M12 17 V20"/>
+      </g>
+    </g>
+    <text x="66" y="116">过滤 · 漏斗</text>
+  </g>
+
+  <!-- 6 折叠 · 双层 chevron -->
+  <g transform="translate(160,150)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 6 L12 11 L17 6"/><path d="M7 13 L12 18 L17 13"/>
+      </g>
+    </g>
+    <text x="66" y="116">折叠 · 双层 chevron</text>
+  </g>
+
+  <!-- 7 文件 · 折角 + 短杠 -->
+  <g transform="translate(306,150)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2.5 H12.5 L18 8 V18.5 A2.5 2.5 0 0 1 15.5 21 H8.5 A2.5 2.5 0 0 1 6 18.5 Z"/>
+        <path d="M10 10 H14"/><path d="M10 15 H14"/>
+      </g>
+    </g>
+    <text x="66" y="116">文件 · 折角 + 短杠</text>
+  </g>
+
+  <!-- 8 终端 · 容器 -->
+  <g transform="translate(452,150)">
+    <rect x="0" y="0" width="132" height="122" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(18,10) scale(4)">
+      <rect x="1" y="1" width="22" height="22" fill="none" stroke="#E9E9F3" stroke-width="0.1" stroke-dasharray="0.8 0.8"/>
+      <g fill="none" stroke="#171718" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <path d="M7.5 9 L10.5 12 L7.5 15"/>
+        <path d="M14.5 12 H18"/>
+      </g>
+    </g>
+    <text x="66" y="116">终端 · 容器 20 / rx5</text>
+  </g>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+<!-- elements: 3 | 终端·容器 | 容器 20×20 rx5；chevron 与光标短杠共轴 y=12，间隙 2 -->
+<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2" y="2" width="20" height="20" rx="5"/>
+  <path d="M7.5 9 L10.5 12 L7.5 15"/>
+  <path d="M14.5 12 H18"/>
+</g>
+</svg>
