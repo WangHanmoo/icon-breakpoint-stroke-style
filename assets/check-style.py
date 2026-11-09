@@ -5,12 +5,15 @@ check-style.py — 断点线性图标风格的自动验收器（24 栅格）
 
 用法:
     python3 check-style.py icon-*.svg [--scale 10] [--tol 0.35] [--png-dir DIR]
+    python3 check-style.py 组/*.svg --palette "96969B,171718,F4F5FC"   # 换色板（如深色主题）
 
-它做四件事，全部用像素实测，不靠肉眼：
+它做六件事，全部用像素实测 / 静态扫描，不靠肉眼：
   1. 连通域计数  —— 与声明的元素数比对，少一块 = 粘连/漏画，多一块 = 意外断裂
-  2. 线宽测量    —— 每个 isolate 连通域的最大内切半径 ×2，检查绝对值=2 且彼此一致
-  3. 间隙测量    —— 连通域之间的最短间隙，检查 ≥2 且落在模数 {2,3,4,6}
+  2. 线宽测量    —— 8 方向行程法取最小再取中位数，检查绝对值=2 且彼此一致
+  3. 间隙测量    —— 连通域之间的最短间隙（精确 EDT），检查 ≥2 且落在模数 {2,3,4,6}
   4. 构成体检    —— 墨量占比、几何中心是否居中、是否越出 keyline
+  5. 色值锁定    —— 静态扫描 hex / rgb() / CSS 颜色名，只允许 currentColor、none 与锁定色板
+  6. 线宽属性    —— 静态扫描全部 stroke-width="…"，必须全部 =2
 
 SVG 中用注释声明元素数：<!-- elements: 5 -->；缺省时按 <path>/<rect>/<circle>/<line> 计数。
 """
@@ -34,6 +37,7 @@ WIDTH_TARGET = 2.0      # 线宽必须恒等于 2
 WIDTH_ABS_TOL = 0.2     # 绝对值容差
 GAP_MIN = 2.0           # 最小净间隙（不粘连）
 INK_BAND = (9.0, 32.0)  # 墨量带：开放型图标天然偏轻（9–13%），容器型偏重（23–30%）
+DEFAULT_PALETTE = "96969B,171718,F4F5FC"  # 色值锁定：默认 / 激活 / 底色（不含 #）
 
 
 def parse_elements(svg_text):
@@ -41,6 +45,53 @@ def parse_elements(svg_text):
     if m:
         return int(m.group(1))
     return len(re.findall(r"<(?:path|rect|circle|line|polyline|polygon)\b", svg_text))
+
+
+def color_fails(txt, palette):
+    """色值锁定检查（静态扫描）：只允许 currentColor / none / 锁定色板。
+
+    抓三类：① 任意位置的 hex（含 fill/stroke/注释外的内联值）；
+    ② fill/stroke/stop-color 属性里的 CSS 颜色名（red、gray 这种）；
+    ③ rgb()/rgba() —— 图标不该带函数色，出现即打回。
+    """
+    bad = []
+    allowed = {h.strip().lstrip("#").upper() for h in palette.split(",") if h.strip()}
+    for hx in re.findall(r"#([0-9A-Fa-f]{3,8})\b", txt):
+        h = hx.upper()
+        if len(h) in (3, 4):  # #abc / #abcd 缩写展开
+            h = "".join(c * 2 for c in h[:3])
+        if h not in allowed:
+            bad.append("#" + hx)
+    for attr in ("fill", "stroke", "stop-color"):
+        for v in re.findall(rf'\b{attr}="([^"]*)"', txt):
+            v = v.strip()
+            if not v or v.lower() in ("none", "transparent", "currentcolor"):
+                continue
+            if v.startswith("#") or v.lower().startswith("rgb"):
+                continue  # hex 由上面统一判；rgb() 由下面单独抓
+            bad.append(f'{attr}="{v}"')  # CSS 颜色名等裸值
+    if re.search(r"rgba?\s*\(", txt, re.I):
+        bad.append("rgb()/rgba()")
+    return sorted(set(bad))
+
+
+def stroke_attr_fails(txt, target=2.0):
+    """线宽属性检查（静态扫描）：所有 stroke-width="…" 必须等于 2。
+
+    像素测量管「画出来的效果」，这里管「源码声明」——防止有人在
+    g 上写 2、在某个 path 上偷偷写 2.5（渲染后两条线依然都要过线宽测量，
+    但源码不一致会传染给后来的图标）。
+    """
+    bad = []
+    for v in re.findall(r'stroke-width="([^"]*)"', txt):
+        try:
+            f = float(v)
+        except ValueError:
+            bad.append(f'stroke-width="{v}"')
+            continue
+        if abs(f - target) > 1e-6:
+            bad.append(f'stroke-width="{v}"')
+    return sorted(set(bad))
 
 
 def render(svg_path, px, tmpdir):
@@ -177,13 +228,14 @@ def stroke_width(ink, w, h, members, scale, sample=3):
     return vals[len(vals) // 2] / scale
 
 
-def analyze(path, scale, tol, tmpdir):
+def analyze(path, scale, tol, tmpdir, palette=DEFAULT_PALETTE):
     px = 24 * scale
     png = render(path, px, tmpdir)
-    expected = parse_elements(open(path, encoding="utf-8").read())
+    svg_text = open(path, encoding="utf-8").read()
+    expected = parse_elements(svg_text)
     im = Image.open(png).convert("L")
     w, h = im.size
-    data = list(im.getdata())
+    data = im.tobytes()  # getdata() 在 Pillow 14 起弃用；tobytes() 对 L 模式等价且更快
     ink = [v < 128 for v in data]
     comps = components(ink, w, h)
 
@@ -248,6 +300,10 @@ def analyze(path, scale, tol, tmpdir):
         res["warns"].append(f"重心偏移 ({cx:.2f},{cy:.2f})")
     if bbox[0] < 0.4 or bbox[1] < 0.4 or bbox[2] > 23.6 or bbox[3] > 23.6:
         res["warns"].append("越出 keyline（描边外缘应落在 1–23）")
+    for c in color_fails(svg_text, palette):
+        res["fails"].append(f"色值越出锁定色板: {c}")
+    for s in stroke_attr_fails(svg_text):
+        res["fails"].append(f"stroke-width 属性≠2: {s}")
     res["pairs"] = pair_info
     return res
 
@@ -257,6 +313,8 @@ def main():
     ap.add_argument("files", nargs="+")
     ap.add_argument("--scale", type=int, default=10)
     ap.add_argument("--tol", type=float, default=0.35)
+    ap.add_argument("--palette", default=DEFAULT_PALETTE,
+                    help="锁定色板，逗号分隔 hex（不含 #），如 96969B,171718,F4F5FC")
     ap.add_argument("--debug", action="store_true")
     args = ap.parse_args()
 
@@ -270,8 +328,10 @@ def main():
         files.extend(sorted(glob.glob(pat)) or [pat])
     tmpdir = tempfile.mkdtemp(prefix="iconcheck-")
 
-    rows = [analyze(f, args.scale, args.tol, tmpdir) for f in files]
+    rows = [analyze(f, args.scale, args.tol, tmpdir, args.palette) for f in files]
     debug = args.debug
+    pal = " ".join("#" + p.strip().lstrip("#").upper() for p in args.palette.split(","))
+    print(f"色板锁定: {pal}")
     print(f"{'文件':<34}{'元素':>8}{'线宽(最小–最大)':>18}{'最小间隙':>10}{'墨量%':>8}  判读")
     print("-" * 108)
     for r in rows:
