@@ -7,13 +7,17 @@ check-style.py — 断点线性图标风格的自动验收器（24 栅格）
     python3 check-style.py icon-*.svg [--scale 10] [--tol 0.35] [--png-dir DIR]
     python3 check-style.py 组/*.svg --palette "96969B,171718,F4F5FC"   # 换色板（如深色主题）
 
-它做六件事，全部用像素实测 / 静态扫描，不靠肉眼：
+它做九件事，全部用像素实测 / 静态扫描，不靠肉眼：
   1. 连通域计数  —— 与声明的元素数比对，少一块 = 粘连/漏画，多一块 = 意外断裂
   2. 线宽测量    —— 8 方向行程法取最小再取中位数，检查绝对值=2 且彼此一致
   3. 间隙测量    —— 连通域之间的最短间隙（精确 EDT），检查 ≥2 且落在模数 {2,3,4,6}
-  4. 构成体检    —— 墨量占比、几何中心是否居中、是否越出 keyline
+  4. 构成体检    —— 墨量占比、几何中心是否居中、笔画是否离画布边缘 ≥1
   5. 色值锁定    —— 静态扫描 hex / rgb() / CSS 颜色名，只允许 currentColor、none 与锁定色板
   6. 线宽属性    —— 静态扫描全部 stroke-width="…"，必须全部 =2
+  7. 圆角白名单  —— 静态扫描全部 rx="…"，只允许 {1, 2, 2.41, 2.5, 3, 5}
+                    （半径阶梯 2/1/2.41 + 容器签名 2.5/3/5）
+  8. 文件名规范  —— kebab-case；纯数字版本段给 WARN（版本应按视觉差异命名）
+  9. 元数据随行  —— 同目录存在任一元数据文件时，缺元数据的图标给 WARN
 
 SVG 中用注释声明元素数：<!-- elements: 5 -->；缺省时按 <path>/<rect>/<circle>/<line> 计数。
 """
@@ -38,6 +42,10 @@ WIDTH_ABS_TOL = 0.2     # 绝对值容差
 GAP_MIN = 2.0           # 最小净间隙（不粘连）
 INK_BAND = (9.0, 32.0)  # 墨量带：开放型图标天然偏轻（9–13%），容器型偏重（23–30%）
 DEFAULT_PALETTE = "96969B,171718,F4F5FC"  # 色值锁定：默认 / 激活 / 底色（不含 #）
+# 圆角白名单：半径阶梯 {1, 2, 2.41} + 容器签名 {2.5, 3, 5}（25% 边长，唯一例外）
+ALLOWED_RADII = (1.0, 2.0, 2.41, 2.5, 3.0, 5.0)
+KEYLINE = 1.0            # 笔画与画布边缘的最小间距（描边外缘落在 1–23）
+KEYLINE_TOL = 0.1        # 抗锯齿读数容差
 
 
 def parse_elements(svg_text):
@@ -73,6 +81,44 @@ def color_fails(txt, palette):
     if re.search(r"rgba?\s*\(", txt, re.I):
         bad.append("rgb()/rgba()")
     return sorted(set(bad))
+
+
+def radius_fails(txt):
+    """圆角白名单检查（静态扫描）：所有 rx="…" 必须在 {1, 2, 2.41, 2.5, 3, 5}。
+
+    半径阶梯（缩放韧性）：90° 角 ≥8 形 → 2；<8 形 → 1；直角相交的对角线 → 2.41
+    （1+√2，圆弧落回网格）。2.5/3/5 是本风格容器主形的 25% 边长签名（唯一例外）。
+    白名单外 = 有人随手拍了圆角，或用了阶梯没覆盖的值 → 打回。
+    """
+    bad = []
+    for v in re.findall(r'\brx="([^"]*)"', txt):
+        try:
+            f = float(v)
+        except ValueError:
+            bad.append(f'rx="{v}"')
+            continue
+        if not any(abs(f - a) < 0.01 for a in ALLOWED_RADII):
+            bad.append(f'rx="{v}"')
+    return sorted(set(bad))
+
+
+def filename_issues(path):
+    """文件名规范（静态检查）：
+    ① 必须小写 kebab-case：^[a-z0-9]+(-[a-z0-9]+)*\\.svg$
+    ② 纯数字段给 WARN（版本应按视觉差异命名，如 chevron-left-collapse，
+       而非 chevron-left-2；arrow-up-0-1 这类复合数字段不拦）。
+    返回 (fails, warns) 两个列表。
+    """
+    name = os.path.basename(path)
+    fails, warns = [], []
+    if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*\.svg", name):
+        fails.append(f"文件名 {name} 不符合小写 kebab-case")
+        return fails, warns
+    segs = name[:-4].split("-")
+    for s in segs:
+        if s.isdigit():
+            warns.append(f"版本段 \"{s}\" 是纯数字——版本应按视觉差异命名")
+    return fails, warns
 
 
 def stroke_attr_fails(txt, target=2.0):
@@ -228,7 +274,7 @@ def stroke_width(ink, w, h, members, scale, sample=3):
     return vals[len(vals) // 2] / scale
 
 
-def analyze(path, scale, tol, tmpdir, palette=DEFAULT_PALETTE):
+def analyze(path, scale, tol, tmpdir, palette=DEFAULT_PALETTE, meta_required=False):
     px = 24 * scale
     png = render(path, px, tmpdir)
     svg_text = open(path, encoding="utf-8").read()
@@ -298,12 +344,22 @@ def analyze(path, scale, tol, tmpdir, palette=DEFAULT_PALETTE):
         res["warns"].append(f"墨量 {res['ink']:.1f}% 越出 {INK_BAND[0]:.0f}–{INK_BAND[1]:.0f}% 带（{hint}）")
     if abs(cx - 12) > 0.6 or abs(cy - 12) > 0.6:
         res["warns"].append(f"重心偏移 ({cx:.2f},{cy:.2f})")
-    if bbox[0] < 0.4 or bbox[1] < 0.4 or bbox[2] > 23.6 or bbox[3] > 23.6:
-        res["warns"].append("越出 keyline（描边外缘应落在 1–23）")
+    if bbox[0] < KEYLINE - KEYLINE_TOL or bbox[1] < KEYLINE - KEYLINE_TOL \
+            or bbox[2] > 24 - KEYLINE + KEYLINE_TOL or bbox[3] > 24 - KEYLINE + KEYLINE_TOL:
+        res["warns"].append("笔画距画布边缘 <1（描边外缘应落在 1–23）")
     for c in color_fails(svg_text, palette):
         res["fails"].append(f"色值越出锁定色板: {c}")
     for s in stroke_attr_fails(svg_text):
         res["fails"].append(f"stroke-width 属性≠2: {s}")
+    for s in radius_fails(svg_text):
+        res["fails"].append(f"圆角值不在白名单 {list(ALLOWED_RADII)}: {s}")
+    f_fails, f_warns = filename_issues(path)
+    res["fails"].extend(f_fails)
+    res["warns"].extend(f_warns)
+    if meta_required:
+        base = os.path.splitext(path)[0]
+        if not any(os.path.exists(base + ext) for ext in (".json", ".meta", ".meta.json", ".yml", ".yaml")):
+            res["warns"].append("缺元数据文件（同目录已有元数据约定，SVG 应一一随行）")
     res["pairs"] = pair_info
     return res
 
@@ -328,7 +384,22 @@ def main():
         files.extend(sorted(glob.glob(pat)) or [pat])
     tmpdir = tempfile.mkdtemp(prefix="iconcheck-")
 
-    rows = [analyze(f, args.scale, args.tol, tmpdir, args.palette) for f in files]
+    rows = []
+    for f in files:
+        # 元数据随行约定：同目录至少有一个 SVG 带同名元数据文件，才对全体生效
+        d = os.path.dirname(os.path.abspath(f)) or "."
+        meta_required = False
+        try:
+            for sib in os.listdir(d):
+                if sib.endswith(".svg"):
+                    stem = os.path.splitext(sib)[0]
+                    if any(os.path.exists(os.path.join(d, stem + ext))
+                           for ext in (".json", ".meta", ".meta.json", ".yml", ".yaml")):
+                        meta_required = True
+                        break
+        except OSError:
+            pass
+        rows.append(analyze(f, args.scale, args.tol, tmpdir, args.palette, meta_required))
     debug = args.debug
     pal = " ".join("#" + p.strip().lstrip("#").upper() for p in args.palette.split(","))
     print(f"色板锁定: {pal}")

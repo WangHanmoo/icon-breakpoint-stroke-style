@@ -190,7 +190,12 @@
   --icon-stroke: 2;              /* @16px → 1.75，@32px → 2.5 */
   --icon-cap: round;
   --icon-join: round;
-  --icon-container-rx: 5;        /* 容器 path 圆角 ≈25% 边长（角部拟合 5.0） */
+  --icon-container-rx: 5;        /* 容器 path 圆角 ≈25% 边长（角部拟合 5.0）——半径阶梯的唯一例外 */
+  --icon-radius-ladder: 2 1 2.41; /* 90° 圆角阶梯：形 ≥8 → 2；<8 → 1；直角相交对角线 → 2.41（1+√2） */
+  --icon-canvas-margin: 1;       /* 笔画与画布边缘 ≥1（描边外缘落在 1–23） */
+  --icon-gap-test: 2px-circle;   /* 2px 圆内切测试：直径 2 的圆放得进间隙即合格 */
+  --icon-diagonal: on-grid;      /* 对角线贴像素网格，禁离格斜线（低密度屏发虚显宽） */
+  --icon-curve: arc/quad-first;  /* 简单弧/二次优先；三次贝塞尔控制点对齐、数量最少 */
   --icon-bracket-r: 4;           /* 取景角弧半径，臂长 4 */
   --icon-gap-scale: 2 3 4 6;     /* 间隙模数（=1×/1.5×/2×/3× 线宽），禁用其他值 */
   --icon-gap-break: 2;           /* 轮廓断点：1–1.5× 线宽 */
@@ -209,7 +214,7 @@
   --icon-motif-mode: implicit;   /* 母题档位：implicit 隐性（默认）/ marked 标记 / emphasized 强调——画前与用户确认 */
 }
 </pre>
-<p class="caption">验收口诀：<b>线 2 圆头；框圆角五分一；杠短四到六；见细就断开，断口一倍半；间隙只用二三四六；斜线不加磅，圆形可出格；正视画、色锁死、记号同形同位。</b></p>
+<p class="caption">验收口诀：<b>线 2 圆头；框圆角五分一；杠短四到六；见细就断开，断口一倍半；间隙只用二三四六；斜线不加磅，圆形可出格；正视画、色锁死、记号同形同位；圆角走阶梯（二一又点四一），多线交汇不倒角。</b></p>
 </div>
 
 <h2>六、语义 → 图形映射表（先选"形类"，再画）</h2>
@@ -228,7 +233,7 @@
 <tr><th>#</th><th>步骤</th><th>产出 / 判定</th></tr>
 <tr><td>1</td><td>写下语义，拆到<b>一层主语义</b>，其余卸载到徽标层/面板层；<b>与用户确认母题记号档位</b>（隐性 / 标记 / 强调）</td><td>一句话："这个图标只讲 X" + 母题档位</td></tr>
 <tr><td>2</td><td>按第六节选形类（容器 / 开放 / 取景角 / 节点）</td><td>确定主形是否封闭</td></tr>
-<tr><td>3</td><td>把主形落进 24 栅格：所有关键坐标落在 0.5 网格，构件尺寸取整模数（2/4/6/8/12/20）</td><td>无 0.5 以外的奇数坐标</td></tr>
+<tr><td>3</td><td>把主形落进 24 栅格：所有关键坐标落在 0.5 网格，构件尺寸取整模数（2/4/6/8/12/20）；<b>圆角走半径阶梯</b>（90° 角 ≥8 形 → 2、<8 形 → 1、直角相交对角线 → 2.41；容器主形例外走 25%）；<b>≥3 线交汇处保持棱角不倒角</b></td><td>无 0.5 以外的奇数坐标；rx 全在白名单 {1,2,2.41,2.5,3,5}</td></tr>
 <tr><td>4</td><td>查「腔体约束表」再补内部细节：容器内放短杠需净腔 ≥ 短杠长 + 6；短杠一律 3–6px、与主线等粗</td><td>dash 长度合法、不顶壁</td></tr>
 <tr><td>5</td><td><b>执行断点 + 防粘连</b>：凡两条独立笔画接近处按 2–3px 断开；语义上必须相接的合并为同一条 path 用 round join</td><td>无相交、无"焊死"、连通域数 = 声明元素数</td></tr>
 <tr><td>6</td><td>间隙全部对齐模数 {2,3,4,6}，同一图标内优先同档；<b>斜线不加粗</b>，端点落在网格交叉点；圆形允许 ±1–2 出格</td><td>间隙谱干净、1x 下视觉等重</td></tr>
@@ -236,7 +241,7 @@
 <tr><td>8</td><td>跑第八节验收清单，全部通过再入库</td><td>清单全绿</td></tr>
 </table>
 
-<h2>八、验收清单（20 条，缺一不打回）</h2>
+<h2>八、验收清单（24 条，缺一不打回）</h2>
 <div class="panel">
 <ul style="font-size:13.5px;margin-left:18px;line-height:2">
 <li>线宽 = 2（@24），全部 round cap + round join</li>
@@ -259,6 +264,10 @@
 <li><b>色值锁定</b>：SVG 内只出现 currentColor / none / 锁定色板；stroke-width 属性全部 =2</li>
 <li><b>母题一致</b>（若启用标记/强调档）：全组同形同尺寸同位、覆盖率 100%，且母题来自构件库</li>
 <li><b>繁简一致</b>：同形类图标墨量极差 ≤5 个百分点；降级全组走同一张矩阵</li>
+<li><b>半径阶梯</b>：90° 圆角 ≥8 形 → 2、<8 形 → 1、直角相交对角线 → 2.41（1+√2）；rx 全部落在白名单 {1,2,2.41,2.5,3,5}</li>
+<li><b>多线交汇保持棱角</b>：≥3 条线相交的拐角不倒圆角（缩放红线）</li>
+<li><b>对角线贴像素网格</b>；曲线用简单弧/二次曲线，三次贝塞尔控制点对齐且数量最少；描边居中于路径</li>
+<li><b>命名与随行</b>：kebab-case、按所见命名（非用途）、同组 <code>&lt;group&gt;-&lt;variant&gt;</code>、版本按视觉差异命名（禁纯数字）、多元素按视觉位置排序（重叠前到后，不重叠上到下左到右）、元数据文件与 SVG 同目录随行</li>
 </ul>
 </div>
 
@@ -280,6 +289,10 @@
 <tr><td>单枚图标局部定义新颜色</td><td>色板被悄悄稀释，色值锁定失效</td><td>新颜色唯一通道：进 token 表加一行，全组统一</td></tr>
 <tr><td>母题（标记/强调档）忽有忽无、位置乱跳</td><td>有母题等于没母题，指纹失效</td><td>同形同尺寸同位、覆盖率 100%；让位规则见三同铁律</td></tr>
 <tr><td>一组里塞两个母题</td><td>两个母题 = 没有母题</td><td>一组只用一个母题</td></tr>
+<tr><td>≥3 线交汇处倒圆角</td><td>缩到 16px 时交点糊成一团墨</td><td>多线交汇保持棱角；2 线普通拐角照常打磨</td></tr>
+<tr><td>对角线离格（端点不在交叉点）</td><td>低密度屏上发虚且视觉更宽，像被偷偷加粗</td><td>端点落网格交叉点、整线沿网格方向</td></tr>
+<tr><td>曲线控制点堆叠 / 三次贝塞尔控制点不对齐</td><td>出现可见凸起、难编辑</td><td>简单弧/二次优先；控制点对齐、宁少勿多</td></tr>
+<tr><td>用纯数字区分版本、用用途命名</td><td>名字不携带视觉信息，库越大越乱</td><td>按视觉差异命名（chevron-left-collapse），按所见命名（arrow-down-tray 而非 export）</td></tr>
 </table>
 
 <h2>十、尺寸降级矩阵</h2>
@@ -321,7 +334,7 @@
 <p style="font-size:13.5px;line-height:1.9"><b>L0 具象（禁止）</b>：画物体本身（有脸有耳的机器人）。<b>L1 提炼（仅必要时）</b>：保留一个几何化识别特征（文件折角、终端光标）。<b>L2 关系符号（默认）</b>：不画东西画关系——汇聚、收束、嵌套、阵列、层级。判据三问：画的是"东西"还是"关系"？去掉某笔还成立吗（成立即装饰，删）？构件是不是构件库里的现成货？<b>构件库只许五种</b>：圆角容器、短杠、节点方块/圆、V 形收口、chevron。新图标 = 旧构件的新组合，这就是"符号化"的机制。</p>
 <h3>自动验收（check-style.py）</h3>
 <pre style="font-family:'SF Mono',Menlo,monospace;font-size:12.5px;line-height:1.8;overflow-x:auto">python3 check-style.py "examples/*.svg" --scale 12</pre>
-<p style="font-size:13px;line-height:1.9">像素实测，不靠肉眼：<b>粘连/断裂</b>（连通域计数 vs 声明元素数，FAIL）、<b>线宽</b>（8 方向行程长度取最小再取中位，2±0.2，FAIL）、<b>间隙</b>（精确欧氏距离变换，≥2 且落模数）、<b>墨量</b>（9–32%，WARN）、<b>居中</b>（偏移 ≤0.6，WARN）、<b>色值锁定</b>（静态扫描 hex/rgb()/CSS 颜色名，只允许 currentColor、none 与锁定色板，FAIL）、<b>线宽属性</b>（静态扫描全部 stroke-width，必须=2，FAIL）。测量三坑：内切半径在 round join 处虚高（改用行程法）；chamfer(3,4) 斜线方向误差 ~8%（改用精确 EDT）；间隙读数含 1px 像素中心系统偏置。</p>
+<p style="font-size:13px;line-height:1.9">像素实测，不靠肉眼：<b>粘连/断裂</b>（连通域计数 vs 声明元素数，FAIL）、<b>线宽</b>（8 方向行程长度取最小再取中位，2±0.2，FAIL）、<b>间隙</b>（精确欧氏距离变换，≥2 且落模数；手测判据 = 2px 圆内切）、<b>边距</b>（笔画离画布边缘 ≥1，WARN）、<b>墨量</b>（9–32%，WARN）、<b>居中</b>（偏移 ≤0.6，WARN）、<b>色值锁定</b>（静态扫描 hex/rgb()/CSS 颜色名，只允许 currentColor、none 与锁定色板，FAIL）、<b>线宽属性</b>（静态扫描全部 stroke-width，必须=2，FAIL）、<b>圆角白名单</b>（静态扫描全部 rx，只允许 {1,2,2.41,2.5,3,5}，FAIL）、<b>文件名规范</b>（kebab-case + 纯数字版本段，WARN）、<b>元数据随行</b>（同目录有元数据约定时缺文件，WARN）。测量三坑：内切半径在 round join 处虚高（改用行程法）；chamfer(3,4) 斜线方向误差 ~8%（改用精确 EDT）；间隙读数含 1px 像素中心系统偏置。</p>
 </div>
 
 <h2>十三、三同铁律（同画法 · 同颜色 · 同记号）</h2>
@@ -356,7 +369,13 @@
 <h2>十四、命名与交付规范</h2>
 <table>
 <tr><th>项</th><th>规则</th></tr>
-<tr><td>文件命名</td><td><code>icon-{语义}-{形类}.svg</code>，例 <code>icon-summary-converge.svg</code>；小写 + 连字符</td></tr>
+<tr><td>文件命名</td><td><b>小写 kebab-case</b>：<code>^[a-z0-9]+(-[a-z0-9]+)*\.svg$</code>，例 <code>arrow-up-0-1.svg</code></td></tr>
+<tr><td>命名语义</td><td><b>描述图标所画的东西，不描述人们怎么用它</b>——画 <code>arrow-down-tray</code>，不画 <code>export</code></td></tr>
+<tr><td>组与变体</td><td>同组用 <code>&lt;group&gt;-&lt;variant&gt;</code>，组名在前变体在后：<code>badge-plus</code> &amp; <code>badge-check</code>，组是 <code>badge</code></td></tr>
+<tr><td>版本命名</td><td><b>按视觉差异命名，禁纯数字区分</b>——写 <code>chevron-left-collapse</code>，不写 <code>chevron-left-2</code></td></tr>
+<tr><td>多元素排序</td><td>按视觉位置命名：元素<b>重叠</b> → 从<b>前到后</b>；<b>不重叠</b> → 英语阅读顺序（从上到下，再从左到右）</td></tr>
+<tr><td>元数据随行</td><td>每个图标的元数据文件与对应 SVG <b>同放在 icons 目录</b>，一一随行</td></tr>
+<tr><td>变体复用</td><td>做变体保留基本图标的几何（坐标/圆角/断点），附加件位置与尺寸跨变体一致——除非新想法本身要求改动</td></tr>
 <tr><td>SVG 结构</td><td><code>viewBox="0 0 24 24"</code>，单一 <code>&lt;g stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;</code>，颜色用 <code>currentColor</code> 便于主题化；首行注释声明元素数：<code>&lt;!-- elements: 5 | 摘要·收束核 | 一句话构成 --&gt;</code>（自动验收靠它数连通域）</td></tr>
 <tr><td>不出</td><td>不内联 style、不用 fill 描边、不含 id 依赖、不加 padding（留白靠栅格）</td></tr>
 <tr><td>导出尺寸</td><td>SVG 为主；位图出 @1x/@2x/@3x PNG，命名 <code>-24</code>/<code>-48</code> 后缀</td></tr>
